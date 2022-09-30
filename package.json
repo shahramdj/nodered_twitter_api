@@ -1,0 +1,59 @@
+{
+  "_from": "node-red-node-twitter@1.2.0",
+  "_id": "node-red-node-twitter@1.2.0",
+  "_inBundle": false,
+  "_integrity": "sha512-6vqS+cXzC2X327OU7HZsPHs+KapBLk7MDT3GrDB4McoGQTGJSirO8s8E78yUOFvcD6qaC09OarzOkHPYk36KdA==",
+  "_location": "/node-red-node-twitter",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "node-red-node-twitter@1.2.0",
+    "name": "node-red-node-twitter",
+    "escapedName": "node-red-node-twitter",
+    "rawSpec": "1.2.0",
+    "saveSpec": null,
+    "fetchSpec": "1.2.0"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/node-red-node-twitter/-/node-red-node-twitter-1.2.0.tgz",
+  "_shasum": "26ae2c431fd3e797a0fff7a0dc16cb1ab283a788",
+  "_spec": "node-red-node-twitter@1.2.0",
+  "_where": "/Users/shahramjalaliniya/.node-red",
+  "bundleDependencies": false,
+  "contributors": [
+    {
+      "name": "Nick O'Leary"
+    },
+    {
+      "name": "Dave Conway-Jones"
+    }
+  ],
+  "dependencies": {
+    "request": "^2.88.0",
+    "twitter-ng": "0.6.2",
+    "needle": "^3.1.0",
+    "twitter-api-v2": "^1.12.7"
+  },
+  "deprecated": false,
+  "description": "A Node-RED node to talk to Twitter",
+  "keywords": [
+    "node-red",
+    "twitter"
+  ],
+  "license": "Apache-2.0",
+  "name": "node-red-node-twitter",
+  "node-red": {
+    "nodes": {
+      "twitter": "27-twitter.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/node-red/node-red-nodes/tree/master/social/twitter"
+  },
+  "version": "1.2.0"
+}
