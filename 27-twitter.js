@@ -1,4 +1,3 @@
-
 module.exports = function (RED) {
     "use strict";
     var Ntwitter = require('twitter-ng');
@@ -64,7 +63,7 @@ module.exports = function (RED) {
         this.active = true;
         this.user = n.user;
         //this.tags = n.tags.replace(/ /g,'');
-        var streamm;
+        this.flag = false;
         this.tags = n.tags || "";
         this.twitter = n.twitter;
         this.topic = "tweets";
@@ -121,7 +120,6 @@ module.exports = function (RED) {
                     'value': node.tags,
                     'tag': node.tags
                 }];
-
 
                 async function getAllRules() {
 
@@ -190,7 +188,7 @@ module.exports = function (RED) {
                 }
 
                 function streamConnect(retryAttempt) {
-
+                    var flag = false;
                     const stream = needle.get(streamURL, {
                         headers: {
                             "User-Agent": "v2FilterStreamJS",
@@ -198,12 +196,13 @@ module.exports = function (RED) {
                         },
                         timeout: 20000
                     });
+                    node.stream = stream;
 
                     stream.on('data', data => {
-                        node.status({fill:"green", shape:"dot", text:(tags||" ")});
                         try {
                             const json = JSON.parse(data);
                             // console.log(json);
+                            node.status({fill:"green", shape:"dot", text:(tags||" ")});
                             node.send({topic:"tweet",payload:json.data.text});
 
                             // A successful connection resets retry count.
@@ -230,9 +229,19 @@ module.exports = function (RED) {
                                 node.status({fill:"red", shape:"ring", text:RED._("twitter.errors")});
                             }, 2 ** retryAttempt)
                         }
+                        if (node.restart) {
+                            node.tout = setTimeout(function() { setupStream() },retry);
+                        }
                     }).on('limit', limit => {
                         //node.status({fill:"grey", shape:"dot", text:RED._("twitter.errors.limitrate")});
                         node.status({fill:"grey", shape:"dot", text:(tags||" ")});
+                    }).on('destroy', function (response) {
+                        twitterRateTimeout = Date.now() + 15000;
+                        if (node.restart) {
+                            node.status({fill:"red", shape:"dot", text:" "});
+                            node.warn(RED._("twitter.errors.unexpectedend"));
+                            node.tout = setTimeout(function() { setupStream() },15000);
+                        }
                     });
 
                     return stream;
@@ -240,10 +249,8 @@ module.exports = function (RED) {
                 }
         
                 try {
-                    var thing = 'statuses/filter';
                     var tags = node.tags;
                     var st = { track: [tags] };
-
                     var setupStream = function() {
                         if (node.restart) {
                             (async () => {
@@ -252,36 +259,76 @@ module.exports = function (RED) {
                                 try {
                                     // Gets the complete list of rules currently applied to the stream
                                     currentRules = await getAllRules();
-            
                                     // Delete all rules. Comment the line below if you want to keep your existing rules.
                                     await deleteAllRules(currentRules);
-            
                                     // Add rules to the stream. Comment the line below if you don't want to add new rules.
                                     await setRules();
-            
                                 } catch (e) {
                                     console.error(e);
                                     process.exit(1);
                                 }
-            
                                 // Listen to the stream.
                                 // node.status({fill:"green", shape:"dot", text:(node.tags||" ")});
                                 console.log("Twitter API is steraming public tweets with search term "+node.tags||" ");
-                                streamm=streamConnect(0);
 
-                            // node.status({fill:"green", shape:"dot", text:(tags||" ")});
+                                var flag = false;
+                                const stream = needle.get(streamURL, {
+                                    headers: {
+                                        "User-Agent": "v2FilterStreamJS",
+                                        "Authorization": `Bearer ${token}`
+                                    },
+                                    timeout: 20000
+                                });
+                                node.stream = stream;
+            
+                                stream.on('data', data => {
+                                    try {
+                                        const json = JSON.parse(data);
+                                        // console.log(json);
+                                        node.status({fill:"green", shape:"dot", text:(tags||" ")});
+                                        var msg = {topic:"tweet",payload:json.data.text};
+                                        node.send(msg);
+
+                                        // A successful connection resets retry count.
+                                        retryAttempt = 0;
+                                    } catch (e) {
+                                        if (data.detail === "This stream is currently at the maximum allowed connection limit.") {
+                                            console.log(data.detail)
+                                            // process.exit(1)
+                                        } else {
+                                            // Keep alive signal received. Do nothing.
+                                        }
+                                    }
+                                }).on('err', error => {
+                                    if (error.code !== 'ECONNRESET') {
+                                        console.log(error.code);
+                                        // process.exit(1);
+                                    } else {
+                                        // This reconnection logic will attempt to reconnect when a disconnection is detected.
+                                        // To avoid rate limits, this logic implements exponential backoff, so the wait time
+                                        // will increase if the client cannot reconnect to the stream. 
+                                        setTimeout(() => {
+                                            console.warn("A connection error occurred. Reconnecting...")
+                                            streamConnect(++retryAttempt);
+                                            node.status({fill:"red", shape:"ring", text:RED._("twitter.errors")});
+                                        }, 2 ** retryAttempt)
+                                    }
+                                    if (node.restart) {
+                                        node.tout = setTimeout(function() { setupStream() },retry);
+                                    }
+                                }).on('limit', limit => {
+                                    //node.status({fill:"grey", shape:"dot", text:RED._("twitter.errors.limitrate")});
+                                    node.status({fill:"grey", shape:"dot", text:(tags||" ")});
+                                }).on('destroy', function (response) {
+                                    twitterRateTimeout = Date.now() + 15000;
+                                    if (node.restart) {
+                                        node.status({fill:"red", shape:"dot", text:" "});
+                                        node.warn(RED._("twitter.errors.unexpectedend"));
+                                        node.tout = setTimeout(function() { setupStream() },15000);
+                                    }
+                                });
 
                             })();
-                            
-                        }
-                    }
-
-                    // if 4 numeric tags that look like a geo area then set geo area
-                    var bits = node.tags.split(",");
-                    if (bits.length == 4) {
-                        if ((Number(bits[0]) < Number(bits[2])) && (Number(bits[1]) < Number(bits[3]))) {
-                            st = { locations: node.tags };
-                            node.log(RED._("twitter.status.using-geo",{location:node.tags.toString()}));
                         }
                     }
 
@@ -294,7 +341,7 @@ module.exports = function (RED) {
                                 if (this.stream) {
                                     this.restart = false;
                                     node.stream.removeAllListeners();
-                                    this.stream.destroy();
+                                    this.stream.request.abort();
                                 }
                                 if ((typeof msg.payload === "string") && (msg.payload !== "")) {
                                     st = { track:[msg.payload] };
@@ -338,7 +385,7 @@ module.exports = function (RED) {
                 if (this.stream) {
                     this.restart = false;
                     this.stream.removeAllListeners();
-                    this.stream.destroy();
+                    this.stream.request.abort();
                 }
                 if (this.timeout_ids) {
                     for (var i = 0; i < this.timeout_ids.length; i++) {
