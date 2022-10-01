@@ -1,4 +1,4 @@
-node-red-node-twitter
+node-red-node-twitter-API V2.0-public tweets
 =====================
 
 <a href="http://nodered.org" target="_new">Node-RED</a> nodes to talk to Twitter.
