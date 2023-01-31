@@ -6,7 +6,7 @@
     <div class="form-row">
         <p style="margin-top: 30px;"><b>1.</b> <span data-i18n="twitter.label.create"></span> <a href="https://developer.twitter.com/en/apps" target="_blank" style="text-decoration:underline;">developer.twitter.com/en/apps</a></p>
     </div>
-    <!-- <div class="form-row">
+    <div class="form-row">
         <p style="margin-top: 30px;"><b>2.</b> <span data-i18n="twitter.label.copy-consumer"></span></p>
     </div>
     <div class="form-row">
@@ -16,19 +16,19 @@
     <div class="form-row">
         <label style="margin-left: 20px;" for="node-config-input-consumer_secret"><span data-i18n="twitter.label.consumer_secret"></span></label>
         <input type="password" id="node-config-input-consumer_secret">
-    </div> -->
+    </div>
 
     <div class="form-row">
         <p style="margin-top: 30px;"><b>3.</b> <span data-i18n="twitter.label.copy-accessToken"></span></p>
     </div>
-    <!-- <div class="form-row">
+    <div class="form-row">
         <label style="margin-left: 20px;" for="node-config-input-access_token"><span data-i18n="twitter.label.access_key"></span></label>
         <input type="password" id="node-config-input-access_token">
     </div>
     <div class="form-row">
         <label style="margin-left: 20px;" for="node-config-input-access_token_secret"><span data-i18n="twitter.label.access_secret"></span></label>
         <input type="password" id="node-config-input-access_token_secret">
-    </div> -->
+    </div>
     <div class="form-row">
         <label style="margin-left: 20px;" for="node-config-input-access_token_bearer"><span data-i18n="twitter.label.access_bearer"></span></label>
         <input type="password" id="node-config-input-access_token_bearer">
@@ -89,9 +89,9 @@
         <label for="node-input-user"><i class="fa fa-search"></i> <span data-i18n="twitter.label.search"></span></label>
         <select type="text" id="node-input-user" style="display: inline-block; vertical-align: middle; width:60%;">
             <option value="false" data-i18n="twitter.search.public"></option>
-            <!-- <option value="true" data-i18n="twitter.search.follow"></option>
+            <option value="true" data-i18n="twitter.search.follow"></option>
             <option value="user" data-i18n="twitter.search.user"></option>
-            <option value="dm" data-i18n="twitter.search.direct"></option> -->
+            <option value="dm" data-i18n="twitter.search.direct"></option>
         </select>
     </div>
     <div class="form-row" id="node-input-tags-row">
@@ -108,7 +108,8 @@
 <script type="text/javascript">
     RED.nodes.registerType('twitter in',{
         category: 'social-input',
-        color:"#3FADB5",
+        color: "#3FADB5",
+        // color:"#C0DEED",
         defaults: {
             twitter: {type:"twitter-credentials",required:true},
             tags: {value:""},
@@ -173,7 +174,7 @@
     });
 </script>
 
-<!-- <script type="text/html" data-template-name="twitter out">
+<script type="text/html" data-template-name="twitter out">
     <div class="form-row">
         <label for="node-input-twitter"><i class="fa fa-user"></i> <span data-i18n="twitter.label.twitter-id"></span></label>
         <input type="text" id="node-input-twitter">
@@ -187,7 +188,8 @@
 <script type="text/javascript">
     RED.nodes.registerType('twitter out',{
         category: 'social-output',
-        color:"#C0DEED",
+        color: "#3FADB5",
+        // color:"#C0DEED",
         defaults: {
             twitter: {type:"twitter-credentials",required:true},
             name: {value:"Tweet"}
@@ -200,4 +202,4 @@
             return this.name;
         }
     });
-</script> -->
+</script>
